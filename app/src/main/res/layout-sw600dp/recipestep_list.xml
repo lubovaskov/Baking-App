@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:divider="?android:attr/dividerHorizontal"
+    android:showDividers="middle"
+    tools:context=".RecipeStepListActivity">
+
+    <android.support.constraint.Guideline
+        android:id="@+id/vertical_guideline_steps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".3" />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardview_ingredients"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@id/vertical_guideline_steps"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="@dimen/material_card_edge_margin"
+        android:elevation="@dimen/material_card_elevation_resting"
+        app:cardBackgroundColor="@color/colorPrimaryLight">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textview_recipe_ingredients_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/material_card_title_block_small_padding_vertical"
+                android:paddingStart="@dimen/material_card_title_block_padding_horizontal"
+                android:paddingEnd="@dimen/material_card_title_block_padding_horizontal"
+                android:text="@string/recipe_ingredients_title"
+                android:textStyle="bold"
+                android:textColor="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/textview_recipe_ingredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/material_card_title_block_small_padding_vertical"
+                android:paddingStart="@dimen/material_card_title_block_padding_horizontal"
+                android:paddingEnd="@dimen/material_card_title_block_padding_horizontal"
+                android:textSize="@dimen/material_card_supporting_text_text_size"
+                android:textColor="@color/colorPrimary" />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview_recipe_steps"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/vertical_guideline_steps"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardview_ingredients"
+        android:layout_margin="@dimen/material_card_edge_margin"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        tools:listitem="@layout/recipestep_list_content" />
+
+    <FrameLayout
+        android:id="@+id/recipestep_detail_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/material_card_edge_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/vertical_guideline_steps"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

@@ -1,3 +1,17 @@
+.gradle
+.idea/
+*.iml
+build/
+/local.properties
+.DS_Store
+/captures
+google-services.json
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
 # Built application files
 *.apk
 *.ap_

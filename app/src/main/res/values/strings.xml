@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Baking App</string>
+    <string name="title_recipestep_detail">RecipeStep Detail</string>
+    <string name="title_activity_recipes">RecipesActivity</string>
+
+    <!-- Recipes activity texts -->
+    <string name="main_menu_refresh">Refresh</string>
+    <string name="recipe_name">%1$d. %2$s</string>
+    <string name="recipe_servings">Servings: %1$d</string>
+    <string name="recipe_image_description">Recipe image</string>
+
+    <!-- Recipe details activity texts -->
+    <string name="recipe_ingredients_title">Ingredients:</string>
+    <string name="recipe_ingredients_line">\u2022 %s - %s %s</string>
+    <string name="recipe_step_text">%1$d. %2$s</string>
+
+    <!-- Recipe step details activity -->
+    <string name="recipe_step_detail_activity_title">Step %1$d</string>
+    <string name="set_widget_recipe">Choose as widget recipe</string>
+    <string name="clear_widget_recipe">Clear widget recipe</string>
+    <string name="button_previous_step_text">Previous step</string>
+    <string name="button_next_step_text">Next step</string>
+    <string name="step_image_description">Recipe step image</string>
+
+    <!-- Error texts -->
+    <string name="not_online_error_text">There is no network connection</string>
+    <string name="network_error_text">Error connecting to go.udacity.com</string>
+
+    <!-- Widget -->
+    <string name="no_widget_recipe">Select a recipe for the widget</string>
+
+</resources>
