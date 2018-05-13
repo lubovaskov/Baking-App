@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -43,6 +44,8 @@ public class RecipeStepDetailFragment extends Fragment implements Player.EventLi
     public static final String RECIPE_STEP_ARGUMENT_NAME = "recipe_step";
     private static final String MEDIA_SESSION_TAG = "RecipeStepMediaSession";
     private static final String USERAGENT_APPLICATION_NAME = "BakingApp";
+    private static final String PLAYER_STATE_SAVE_NAME = "player_state";
+    private static final String PLAYER_POSITION_SAVE_NAME = "player_position";
 
     private RecipeStep recipeStep;
 
@@ -62,6 +65,8 @@ public class RecipeStepDetailFragment extends Fragment implements Player.EventLi
     private SimpleExoPlayer exoPlayer;
     private MediaSessionCompat mediaSession;
     private PlaybackStateCompat.Builder stateBuilder;
+    private long currentPlayerPosition;
+    private Boolean currentPlayerState;
 
     public RecipeStepDetailFragment() {
     }
@@ -88,48 +93,61 @@ public class RecipeStepDetailFragment extends Fragment implements Player.EventLi
         unbinder = ButterKnife.bind(this, fragmentView);
 
         if (recipeStep != null) {
-            if (recipeStep.videoURL != null && !recipeStep.videoURL.isEmpty()) {
+            //if the current recipe step has a video link
+            if ((recipeStep.videoURL != null) && (!recipeStep.videoURL.isEmpty())) {
+                //hide image view
                 setViewVisibility(ivThumbnail, false);
+
+                //restore ExoPlayer position and state
+                if (savedInstanceState != null) {
+                    onRestoreInstanceState(savedInstanceState);
+                } else {
+                    currentPlayerPosition = C.TIME_UNSET;
+                    currentPlayerState = true;
+                }
 
                 //initialize ExoPlayer
                 initializeMediaSession();
                 initializePlayer(Uri.parse(recipeStep.videoURL));
 
+                //turn on fullscreen mode if in landscape orientation
                 int orientation = getResources().getConfiguration().orientation;
-
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE && !useTwoPane) {
                     fullscreenVideo(playerView);
                     hideSystemUI();
                 }
+
+                //show ExoPlayer
                 setViewVisibility(playerView, true);
             } else {
+                //if the current recipe step has no video link
+                //hide ExoPlayer
                 setViewVisibility(playerView, false);
+                //show image view
                 setViewVisibility(ivThumbnail, true);
-                if (recipeStep.thumbnailURL != null && !recipeStep.thumbnailURL.isEmpty()) {
+
+                if ((recipeStep.thumbnailURL != null) && (!recipeStep.thumbnailURL.isEmpty())) {
+                    //if the current recipe step has an image link - load it
                     Picasso.with(mContext)
-                        .load(recipeStep.thumbnailURL)
-                        .error(R.drawable.image_placeholder)
-                        .placeholder(R.drawable.image_placeholder)
-                        .into(ivThumbnail);
+                            .load(recipeStep.thumbnailURL)
+                            .error(R.drawable.image_placeholder)
+                            .placeholder(R.drawable.image_placeholder)
+                            .into(ivThumbnail);
                 } else {
+                    //if the current recipe step has no image link - load a placeholder
                     Picasso.with(mContext)
-                        .load(R.drawable.image_placeholder)
-                        .error(R.drawable.image_placeholder)
-                        .placeholder(R.drawable.image_placeholder)
-                        .into(ivThumbnail);
+                            .load(R.drawable.image_placeholder)
+                            .error(R.drawable.image_placeholder)
+                            .placeholder(R.drawable.image_placeholder)
+                            .into(ivThumbnail);
                 }
             }
 
+            //display recipe step description
             tvDescription.setText(recipeStep.description);
         }
 
         return fragmentView;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        releasePlayer();
     }
 
     @Override
@@ -138,6 +156,56 @@ public class RecipeStepDetailFragment extends Fragment implements Player.EventLi
         //release butterknife bindings
         unbinder.unbind();
         mContext = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if ((Util.SDK_INT <= 23) && (recipeStep != null) &&
+                (recipeStep.videoURL != null) && (!recipeStep.videoURL.isEmpty())) {
+            initializePlayer(Uri.parse(recipeStep.videoURL));
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if ((Util.SDK_INT > 23) && (recipeStep != null) &&
+                (recipeStep.videoURL != null) && (!recipeStep.videoURL.isEmpty())) {
+            initializePlayer(Uri.parse(recipeStep.videoURL));
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if ((exoPlayer != null) && (playerView.getVisibility() == View.VISIBLE)) {
+            currentPlayerPosition = exoPlayer.getCurrentPosition();
+            currentPlayerState = exoPlayer.getPlayWhenReady();
+            outState.putLong(PLAYER_POSITION_SAVE_NAME, currentPlayerPosition);
+            outState.putBoolean(PLAYER_STATE_SAVE_NAME, currentPlayerState);
+        }
+    }
+
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        currentPlayerPosition = savedInstanceState.getLong(PLAYER_POSITION_SAVE_NAME, C.TIME_UNSET);
+        currentPlayerState = savedInstanceState.getBoolean(PLAYER_STATE_SAVE_NAME, false);
     }
 
     private void setViewVisibility(View view, boolean show) {
@@ -163,7 +231,10 @@ public class RecipeStepDetailFragment extends Fragment implements Player.EventLi
                     .createMediaSource(uri);
 
             exoPlayer.prepare(mediaSource);
-            exoPlayer.setPlayWhenReady(true);
+            if (currentPlayerPosition > C.TIME_UNSET) {
+                exoPlayer.seekTo(currentPlayerPosition);
+            }
+            exoPlayer.setPlayWhenReady(currentPlayerState);
         }
     }
 

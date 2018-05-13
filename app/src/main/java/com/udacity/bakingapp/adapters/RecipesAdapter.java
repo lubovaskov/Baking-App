@@ -50,6 +50,7 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.RecipesA
         recipesAdapterViewHolder.tvRecipeName.setText(recipe.name);
         recipesAdapterViewHolder.tvRecipeServings.setText(String.format(Locale.getDefault(),
                 mContext.getResources().getString(R.string.recipe_servings), recipe.servings));
+        //make imagePath = null if it equals "", otherwise Picasso raises an exception
         String imagePath = recipe.image;
         if ((recipe.image != null) && (recipe.image.equals(""))) {
             imagePath = null;
